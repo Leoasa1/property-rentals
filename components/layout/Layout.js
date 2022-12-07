@@ -2,7 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 import Navbar from '../navbar/Navbar';
 
-const Layout = (title, description, keywords, children) => {
+const Layout = ({ title, description, keywords, children }) => {
 	return (
 		<div data-theme='bumblebee'>
 			<Head>
