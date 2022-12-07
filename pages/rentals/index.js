@@ -39,8 +39,7 @@ const Index = () => {
 					sort: 'relevance',
 				},
 				headers: {
-					'X-RapidAPI-Key':
-						'0fe077be1emshd40962bc735f0ccp1ca7dcjsnc61b720bed51',
+					'X-RapidAPI-Key': `${process.env.NEXT_PUBLIC_RAPIDAPI}`,
 					'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com',
 				},
 			};
@@ -89,8 +88,7 @@ const Index = () => {
 				sort: 'relevance',
 			},
 			headers: {
-				'X-RapidAPI-Key':
-					'0fe077be1emshd40962bc735f0ccp1ca7dcjsnc61b720bed51',
+				'X-RapidAPI-Key': `${process.env.NEXT_PUBLIC_RAPIDAPI}`,
 				'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com',
 			},
 		};
