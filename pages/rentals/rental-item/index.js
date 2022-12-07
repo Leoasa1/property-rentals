@@ -1,7 +1,5 @@
-import * as React from 'react';
+import React from 'react';
 import { useEffect, useState, useRef } from 'react';
-import * as tt from '@tomtom-international/web-sdk-maps';
-import ttt from '@tomtom-international/web-sdk-services';
 import Image from 'next/image';
 import Layout from '../../../components/layout/Layout';
 
@@ -19,8 +17,8 @@ const Index = () => {
 	// reference variable for storing map
 	// returns an object with a single property
 	const mapElement = useRef();
-	const [mapLongitude, setMapLongitude] = useState(-121.91599);
-	const [mapLatitude, setMapLatitude] = useState(37.36765);
+	const [mapLongitude, setMapLongitude] = useState(0);
+	const [mapLatitude, setMapLatitude] = useState(0);
 
 	const getProperty = async () => {
 		const getPropArray =
@@ -31,8 +29,6 @@ const Index = () => {
 		const getProp = await getPropArray.find(
 			(items) => items.property_id == localStorage.getItem('prop-ID')
 		);
-		console.log(getProp);
-
 		setMapLatitude(Number(getProp.address.lat));
 		setMapLongitude(Number(getProp.address.lon));
 
@@ -46,35 +42,41 @@ const Index = () => {
 		});
 	};
 
-	const getMap = () => {
-		const map = tt.map({
-			key: 'rAZbzAgN8mOZPoGiQrNeEWiu0E6Nhqxl',
-			container: mapElement.current,
-			center: [mapLongitude, mapLatitude],
-			zoom: '15',
-		});
-		const gett = async () => {
-			const response = await ttt.services
-				.fuzzySearch({
-					key: 'rAZbzAgN8mOZPoGiQrNeEWiu0E6Nhqxl',
-					query: 'resturant',
-					center: [mapLongitude, mapLatitude],
-					radius: '8800',
-				})
-				.then();
-
-			return response.results.forEach((result) => {
-				const popup = new tt.Popup({ offset: 30 }).setText(
-					result.poi.name
-				);
-				new tt.Marker({ color: '#ff3300' })
-					.setLngLat(result.position)
-					.setPopup(popup)
-					.addTo(map);
+	const getMap = async () => {
+		if (mapLatitude !== 0 && typeof window !== 'undefined') {
+			const tt = await import('@tomtom-international/web-sdk-maps');
+			const map = tt.map({
+				key: 'rAZbzAgN8mOZPoGiQrNeEWiu0E6Nhqxl',
+				container: mapElement.current,
+				center: [mapLongitude, mapLatitude],
+				zoom: '15',
 			});
-		};
+			const gett = async () => {
+				const ttt = await import(
+					'@tomtom-international/web-sdk-services'
+				);
+				const response = await ttt.services
+					.fuzzySearch({
+						key: 'rAZbzAgN8mOZPoGiQrNeEWiu0E6Nhqxl',
+						query: 'resturant',
+						center: [mapLongitude, mapLatitude],
+						radius: '8800',
+					})
+					.then();
 
-		gett();
+				return response.results.forEach((result) => {
+					const popup = new tt.Popup({ offset: 30 }).setText(
+						result.poi.name
+					);
+					new tt.Marker({ color: '#ff3300' })
+						.setLngLat(result.position)
+						.setPopup(popup)
+						.addTo(map);
+				});
+			};
+
+			gett();
+		}
 		return () => map.remove();
 	};
 
