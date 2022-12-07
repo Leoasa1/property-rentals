@@ -71,9 +71,7 @@ export default function Home() {
 							<div className='w-full'>
 								<Autocomplete
 									className='border w-full h-12 lg:h-full text-xl px-4'
-									apiKey={
-										'AIzaSyBOLRScMEk0x2QOk3LAucD3Bylv5Rjh8RY'
-									}
+									apiKey={`${process.env.NEXT_PUBLIC_GOOGLE}`}
 									options={{
 										types: ['geocode', 'establishment'],
 										fields: [

@@ -46,7 +46,7 @@ const Index = () => {
 		if (mapLatitude !== 0 && typeof window !== 'undefined') {
 			const tt = await import('@tomtom-international/web-sdk-maps');
 			const map = tt.map({
-				key: 'rAZbzAgN8mOZPoGiQrNeEWiu0E6Nhqxl',
+				key: `${process.env.NEXT_PUBLIC_TOMTOM}`,
 				container: mapElement.current,
 				center: [mapLongitude, mapLatitude],
 				zoom: '15',
@@ -57,7 +57,7 @@ const Index = () => {
 				);
 				const response = await ttt.services
 					.fuzzySearch({
-						key: 'rAZbzAgN8mOZPoGiQrNeEWiu0E6Nhqxl',
+						key: `${process.env.NEXT_PUBLIC_TOMTOM}`,
 						query: 'resturant',
 						center: [mapLongitude, mapLatitude],
 						radius: '8800',
