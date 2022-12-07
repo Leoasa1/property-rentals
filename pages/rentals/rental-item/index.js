@@ -33,8 +33,8 @@ const Index = () => {
 		);
 		console.log(getProp);
 
-		// setMapLatitude(Number(getProp.address.lat));
-		// setMapLongitude(Number(getProp.address.lon));
+		setMapLatitude(Number(getProp.address.lat));
+		setMapLongitude(Number(getProp.address.lon));
 
 		setPropValue({
 			property_id: getProp.property_id,
