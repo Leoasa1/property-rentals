@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import Layout from '../../../components/layout/Layout';
+import { TOMTOM_URL } from '../../../components/config';
 
 const Index = () => {
 	// global object inside the function for storing property object values such as address and photos etc..
@@ -20,18 +21,24 @@ const Index = () => {
 	const [mapLongitude, setMapLongitude] = useState(0);
 	const [mapLatitude, setMapLatitude] = useState(0);
 
+	// function to get the properties from local storage
 	const getProperty = async () => {
+		// window is loaded get properties from local storage and turn string to json format
 		const getPropArray =
-			typeof window !== 'undefined'
+			(await typeof window) !== 'undefined'
 				? JSON.parse(localStorage.getItem('properties'))
 				: null;
 
-		const getProp = await getPropArray.find(
+		// use the selected id from local storage to get one property information using find method
+		const getProp = getPropArray.find(
 			(items) => items.property_id == localStorage.getItem('prop-ID')
 		);
+
+		// get lat and lon of the property andress and assign it to const variables
 		setMapLatitude(Number(getProp.address.lat));
 		setMapLongitude(Number(getProp.address.lon));
 
+		// assign values from getProp variable to propValue state object
 		setPropValue({
 			property_id: getProp.property_id,
 			rdc_web_url: getProp.rdc_web_url,
@@ -42,32 +49,42 @@ const Index = () => {
 		});
 	};
 
+	// function for creating the map with markers for resturant locations
 	const getMap = async () => {
+		// if lat not zero and window loaded, create map
 		if (mapLatitude !== 0 && typeof window !== 'undefined') {
+			// using dynamic import for tomtom map library
 			const tt = await import('@tomtom-international/web-sdk-maps');
+			// creating map with lat and lon coordinates from the useState variables and zoom value
 			const map = tt.map({
-				key: `${process.env.NEXT_PUBLIC_TOMTOM}`,
+				key: `${TOMTOM_URL}`,
 				container: mapElement.current,
 				center: [mapLongitude, mapLatitude],
 				zoom: '15',
 			});
+
+			// async function for creating markers for resturant locations
 			const gett = async () => {
+				// using dynamic import for tomtom services library
 				const ttt = await import(
 					'@tomtom-international/web-sdk-services'
 				);
+				// using fuzzySearch API to find resturants near the property location
 				const response = await ttt.services
 					.fuzzySearch({
-						key: `${process.env.NEXT_PUBLIC_TOMTOM}`,
+						key: `${TOMTOM_URL}`,
 						query: 'resturant',
 						center: [mapLongitude, mapLatitude],
 						radius: '8800',
 					})
 					.then();
 
+				// for each result create a pop up and assign resturant name
 				return response.results.forEach((result) => {
 					const popup = new tt.Popup({ offset: 30 }).setText(
 						result.poi.name
 					);
+					// for each resturant location create marker pointing to the resturant
 					new tt.Marker({ color: '#ff3300' })
 						.setLngLat(result.position)
 						.setPopup(popup)
@@ -80,25 +97,29 @@ const Index = () => {
 		return () => map.remove();
 	};
 
+	// useEffect function for calling the getPropery and getMap functions when the page loads
+	// call the function each time the lat and long variables get updated to update the map
 	useEffect(() => {
 		getProperty();
 		getMap();
 	}, [mapLatitude, mapLongitude]);
 
+	// get url from propValue photos and update the link from small to large image size url
 	const url = Object.values(propValue.photos).map((e) => {
 		const href = e.href.split('.jpg');
 		return href.join('') + 'od.jpg';
 	});
 
+	// destructure propValue object
 	const { rdc_web_url, address, community } = propValue;
 
 	return (
 		//body
 		<Layout>
-			<div className='container mx-auto h-max p-4'>
+			<div className='container mx-auto h-max p-4 border-black'>
 				{/*top container*/}
-				<div className='flex justify-center m-2.5 '>
-					<div className='flex flex-col lg:flex-row justify-center items-center gap-4 lg:gap-14'>
+				<div className='flex justify-center mt-2'>
+					<div className='flex flex-col lg:flex-row justify-center items-center gap-4 lg:gap-14 w-full lg:w-auto p-4'>
 						{/*Image container*/}
 
 						{/*Image holder*/}
@@ -112,10 +133,10 @@ const Index = () => {
 						/>
 
 						{/*Name, Price, Location and Specs*/}
-						<section className='flex flex-col justify-between w-full h-full '>
-							<div className=''>
+						<section className='flex flex-col justify-between w-full h-full'>
+							<div>
 								<h1 className='font-bold text-4xl playfair'>
-									{community.price_max
+									{community
 										? `$ ${community.price_max}`
 										: 'Contact for Price'}
 								</h1>
@@ -127,28 +148,32 @@ const Index = () => {
 								</div>
 								<div className='text-sm mt-4'>
 									<span>
-										{propValue.community.beds_min} -{' '}
-										{propValue.community.beds_max} Beds
+										{community ? community.beds_min : '?'} -{' '}
+										{community ? community.beds_max : '?'}{' '}
+										Beds
 									</span>
 									<br />
 									<span>
-										{propValue.community.baths_min} -{' '}
-										{propValue.community.baths_max} baths
+										{community ? community.baths_min : '?'}{' '}
+										-{' '}
+										{community ? community.baths_max : '?'}{' '}
+										baths
 									</span>
 									<br />
 									<span>
-										{propValue.community.sqft_min} -{' '}
-										{propValue.community.sqft_max} Sqft
+										{community ? community.sqft_min : '?'} -{' '}
+										{community ? community.sqft_max : '?'}{' '}
+										Sqft
 									</span>
 								</div>
 							</div>
 
 							{/*Buttons container*/}
-							<div className='flex flex-col md:flex-row gap-4 w-full '>
+							<div className='flex flex-col mt-5 lg:mt-0 md:flex-row gap-4 w-full md:justify-start'>
 								{/*Buttons*/}
 								<a
 									href={rdc_web_url}
-									className='btn w-full md:w-40 text-xs'
+									className='btn w-full md:w-56 lg:w-40 text-xs'
 									target='_blank'
 									rel='noreferrer'
 								>
@@ -156,11 +181,15 @@ const Index = () => {
 									More Info{' '}
 								</a>
 								<a
-									href={`tel:+${propValue.community.contact_number}`}
-									className='btn w-full md:w-40 text-xs'
+									href={
+										community
+											? `tel:+${community.contact_number}`
+											: 'rentals/rental-item'
+									}
+									className='btn w-full md:w-56 lg:w-40 text-xs'
 								>
-									{propValue.community.contact_number
-										? propValue.community.contact_number
+									{community.contact_number
+										? community.contact_number
 										: 'Phone Not Available'}
 								</a>
 							</div>
@@ -169,7 +198,7 @@ const Index = () => {
 				</div>{' '}
 				{/*end of top part*/}
 				{/*Gallery container*/}
-				<div className='m-2.5 mt-10'>
+				<div className='mt-10 p-4'>
 					{/*Gallery Header*/}
 					<h1 className='p-1 font-bold text-xl text-center playfair border-b border-black w-56 mx-auto'>
 						Gallery
@@ -217,15 +246,13 @@ const Index = () => {
 				</div>
 				{/*end of gallery part*/}
 				{/*Map container*/}
-				<div className='mt-10'>
+				<div className='mt-10 p-4'>
 					{/*Map Header*/}
 					<h1 className='p-1 font-bold text-xl text-center playfair border-b border-black w-56 mx-auto'>
 						Near By Resturants
 					</h1>
-					<div className='mt-3'>
-						<div xs='8'>
-							<div ref={mapElement} className='mapDiv' />
-						</div>
+					<div className='mt-3 h-80 border-2 mx-auto'>
+						<div ref={mapElement} className='map' />
 					</div>
 				</div>
 				{/*end of map part*/}

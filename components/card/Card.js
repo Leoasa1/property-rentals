@@ -7,6 +7,7 @@ const Card = ({ property }) => {
 	const [propID, setPropID] = useState('');
 	let url;
 
+	// on card click to store property id to local storage prop-ID
 	const handleClick = (e) => {
 		e.preventDefault();
 		localStorage.setItem('prop-ID', propID);
@@ -14,10 +15,12 @@ const Card = ({ property }) => {
 		ROUTER.push('/rentals/rental-item');
 	};
 
+	// useEffect function to set propID on page load
 	useEffect(() => {
 		setPropID(property.property_id);
 	}, []);
 
+	// if property.photo[0] split url and join with "od.jpg"
 	if (property.photos[0]) {
 		url = property.photos[0].href.split('.jpg');
 		url = url.join('') + 'od.jpg';
@@ -26,7 +29,10 @@ const Card = ({ property }) => {
 	}
 
 	return (
-		<div className='card w-96 bg-base-100 shadow-xl' onClick={handleClick}>
+		<div
+			className='card w-80 sm:w-96 bg-base-100 shadow-xl'
+			onClick={handleClick}
+		>
 			<figure>
 				<Image
 					className='h-56 w-full'

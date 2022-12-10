@@ -2,22 +2,24 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Autocomplete from 'react-google-autocomplete';
-// import { useGlobalContext } from '../contexts/searchContext';
 import { ToastContainer, toast } from 'react-toastify';
+import { GOOGLE_URL } from '../components/config/index.js';
+import Image from 'next/image.js';
 
 export default function Home() {
+	// global variables for city, and state for searching locations
 	const [cityValue, setCityValue] = useState('');
 	const [stateValue, setStateValue] = useState('');
 	const router = useRouter();
 
-	// const { setCity, setState } = useGlobalContext();
-
+	// useEffect function to reset local storage variables to null
 	useEffect(() => {
 		localStorage.setItem('city', null);
 		localStorage.setItem('state', null);
 		localStorage.setItem('properties', null);
 	});
 
+	// submit function to set searched values to local storage, else show toast error
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		if (cityValue) {
@@ -34,9 +36,12 @@ export default function Home() {
 			<ToastContainer theme='colored' position='top-center' />
 			<div className='flex flex-col lg:flex-row-reverse'>
 				<div className='hidden lg:block'>
-					<img
+					<Image
 						className='h-screen w-auto'
 						src='/images/pink-building.jpg'
+						alt=''
+						width={300}
+						height={600}
 					/>
 				</div>
 				<div className='px-10'>
@@ -71,7 +76,7 @@ export default function Home() {
 							<div className='w-full'>
 								<Autocomplete
 									className='border w-full h-12 lg:h-full text-xl px-4'
-									apiKey={`${process.env.NEXT_PUBLIC_GOOGLE}`}
+									apiKey={`${GOOGLE_URL}`}
 									options={{
 										types: ['geocode', 'establishment'],
 										fields: [
