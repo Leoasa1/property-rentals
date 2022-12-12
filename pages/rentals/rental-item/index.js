@@ -119,21 +119,22 @@ const Index = () => {
 			<div className='container mx-auto h-max p-4 border-black'>
 				{/*top container*/}
 				<div className='flex justify-center mt-2'>
-					<div className='flex flex-col lg:flex-row justify-center items-center gap-4 lg:gap-14 w-full lg:w-auto p-4'>
+					<div className='grid lg:grid-cols-2 justify-items-center gap-2 w-full lg:w-auto'>
 						{/*Image container*/}
 
 						{/*Image holder*/}
 						<Image
 							loader={() => url[0]}
+							unoptimized={true}
 							width={200}
 							height={150}
 							alt='Property View'
-							src={url[0] ? url[0] : '/images/placeholder.jpeg'}
+							src={url[0] ? url[10] : '/images/placeholder.jpeg'}
 							className='bg-gray-50 w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
 						/>
 
 						{/*Name, Price, Location and Specs*/}
-						<section className='flex flex-col justify-between w-full h-full'>
+						<section className='flex flex-col justify-between w-full h-full border-2'>
 							<div>
 								<h1 className='font-bold text-4xl playfair'>
 									{community
@@ -205,10 +206,11 @@ const Index = () => {
 					</h1>
 
 					{/*Gallery Part. set up block's w and h*/}
-					<div className='grid lg:grid-cols-2 gap-2 mx-auto my-2.5 w-full lg:w-max'>
+					<div className='grid lg:grid-cols-2 gap-2 mx-auto my-2.5 w-full lg:w-max '>
 						{/*Gallery Image Place Holders*/}
 						<Image
-							loader={() => url[1]}
+							loader={() => url}
+							unoptimized={true}
 							width={200}
 							height={150}
 							alt='Property View'
@@ -217,7 +219,8 @@ const Index = () => {
 						/>
 
 						<Image
-							loader={() => url[2]}
+							loader={() => url}
+							unoptimized={true}
 							width={200}
 							height={150}
 							alt='Property View'
@@ -226,7 +229,8 @@ const Index = () => {
 						/>
 
 						<Image
-							loader={() => url[3]}
+							loader={() => url}
+							unoptimized={true}
 							width={200}
 							height={150}
 							alt='Property View'
@@ -235,7 +239,8 @@ const Index = () => {
 						/>
 
 						<Image
-							loader={() => url[4]}
+							loader={() => url}
+							unoptimized={true}
 							width={200}
 							height={150}
 							alt='Property View'

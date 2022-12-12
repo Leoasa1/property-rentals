@@ -37,13 +37,14 @@ const Card = ({ property }) => {
 				<Image
 					className='h-56 w-full'
 					loader={() => url}
+					unoptimized={true}
 					src={url ? url : '/images/placeholder.jpeg'}
-					alt='Shoes'
+					alt='Picture of a building structure'
 					width={200}
 					height={150}
 				/>
 			</figure>
-			<div className='card-body bg-card'>
+			<section className='card-body bg-card'>
 				<h2 className='card-title'>
 					{property.community !== undefined &&
 					property.community.price_max !== null
@@ -77,7 +78,7 @@ const Card = ({ property }) => {
 							: '?'}
 					</div>
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 };

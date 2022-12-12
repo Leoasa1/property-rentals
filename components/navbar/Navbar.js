@@ -15,7 +15,11 @@ const Navbar = () => {
 						<Link href={'/about'}>About</Link>
 					</li>
 					<li>
-						<a href='https://github.com/Leoasa1/property-rentals'>
+						<a
+							href='https://github.com/Leoasa1/property-rentals'
+							target='_blank'
+							rel='noreferrer'
+						>
 							Github
 						</a>
 					</li>

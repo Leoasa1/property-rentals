@@ -4,7 +4,7 @@ import Navbar from '../navbar/Navbar';
 
 const Layout = ({ title, description, keywords, children }) => {
 	return (
-		<div data-theme='bumblebee'>
+		<>
 			<Head>
 				<title>{title}</title>
 				<meta name='description' content={description} />
@@ -12,7 +12,7 @@ const Layout = ({ title, description, keywords, children }) => {
 			</Head>
 			<Navbar />
 			{children}
-		</div>
+		</>
 	);
 };
 

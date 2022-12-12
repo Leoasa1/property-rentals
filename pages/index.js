@@ -39,7 +39,7 @@ export default function Home() {
 					<Image
 						className='h-screen w-auto'
 						src='/images/pink-building.jpg'
-						alt=''
+						alt='Image of a skyscraper'
 						width={300}
 						height={600}
 					/>
