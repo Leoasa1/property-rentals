@@ -119,7 +119,7 @@ const Index = () => {
 			<div className='container mx-auto h-max p-4 border-black'>
 				{/*top container*/}
 				<div className='flex justify-center mt-2'>
-					<div className='grid lg:grid-cols-2 justify-items-center gap-2 w-full lg:w-auto'>
+					<div className='grid lg:grid-cols-2 justify-items-center gap-2 w-full lg:w-auto p-4'>
 						{/*Image container*/}
 
 						{/*Image holder*/}
