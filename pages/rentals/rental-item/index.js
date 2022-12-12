@@ -134,7 +134,7 @@ const Index = () => {
 						/>
 
 						{/*Name, Price, Location and Specs*/}
-						<section className='flex flex-col justify-between w-full h-full border-2'>
+						<section className='flex flex-col justify-between w-full h-full'>
 							<div>
 								<h1 className='font-bold text-4xl playfair'>
 									{community
