@@ -10,7 +10,7 @@ export default function Home() {
 	// global variables for city, and state for searching locations
 	const [cityValue, setCityValue] = useState('');
 	const [stateValue, setStateValue] = useState('');
-	const router = useRouter();
+	const ROUTER = useRouter();
 
 	// useEffect function to reset local storage variables to null
 	useEffect(() => {
@@ -20,12 +20,12 @@ export default function Home() {
 	});
 
 	// submit function to set searched values to local storage, else show toast error
-	const handleSubmit = (e) => {
+	const HANDLE_SUBMIT = (e) => {
 		e.preventDefault();
 		if (cityValue) {
 			localStorage.setItem('city', cityValue);
 			localStorage.setItem('state', stateValue);
-			router.push('/rentals');
+			ROUTER.push('/rentals');
 		} else {
 			toast.error('Valid Location Missing');
 		}
@@ -71,7 +71,7 @@ export default function Home() {
 
 						<form
 							className='flex flex-col lg:flex-row gap-6'
-							onSubmit={handleSubmit}
+							onSubmit={HANDLE_SUBMIT}
 						>
 							<div className='w-full'>
 								<Autocomplete
@@ -86,29 +86,27 @@ export default function Home() {
 									}}
 									onPlaceSelected={(place) => {
 										if (place) {
-											const getCity =
+											const GET_CITY =
 												place.address_components.find(
 													(element) => {
-														const condition =
+														const CONDITION =
 															element.types.includes(
 																'neighborhood'
 															) ||
 															element.types.includes(
 																'locality'
 															);
-														return condition;
+														return CONDITION;
 													}
 												);
-											const getState =
+											const GET_STATE =
 												place.address_components.find(
 													(element) =>
 														element.types[0] ==
 														'administrative_area_level_1'
 												);
-											console.log(typeof place);
-											setCityValue(getCity.short_name);
-											setStateValue(getState.short_name);
-											console.log(place);
+											setCityValue(GET_CITY.short_name);
+											setStateValue(GET_STATE.short_name);
 										}
 									}}
 								/>

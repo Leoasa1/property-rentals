@@ -8,7 +8,7 @@ const Card = ({ property }) => {
 	let url;
 
 	// on card click to store property id to local storage prop-ID
-	const handleClick = (e) => {
+	const HANDLE_CLICK = (e) => {
 		e.preventDefault();
 		localStorage.setItem('prop-ID', propID);
 
@@ -31,7 +31,7 @@ const Card = ({ property }) => {
 	return (
 		<div
 			className='card w-80 sm:w-96 bg-base-100 shadow-xl'
-			onClick={handleClick}
+			onClick={HANDLE_CLICK}
 		>
 			<figure>
 				<Image

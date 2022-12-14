@@ -3,7 +3,7 @@ import Layout from './../../components/layout/Layout';
 import { useRouter } from 'next/router';
 import Card from '../../components/card/Card';
 import Autocomplete from 'react-google-autocomplete';
-const axios = require('axios');
+const AXIOS = require('axios');
 import ScaleLoader from 'react-spinners/ScaleLoader';
 import { GOOGLE_URL, RAPIDAPI_URL } from '../../components/config/index.js';
 
@@ -12,7 +12,7 @@ const Index = () => {
 	const [cityValue, setCityValue] = useState('');
 	const [stateValue, setStateValue] = useState('');
 
-	let [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(true);
 
 	const ROUTER = useRouter();
 
@@ -31,12 +31,12 @@ const Index = () => {
 			: null;
 
 	// async function to make RAPID-API call to get list of property
-	const getProp = async () => {
+	const GET_PROP = async () => {
 		if (PROPERTIES !== 'null') {
 			setPropData(JSON.parse(PROPERTIES));
 		} else {
 			// const variable to set header properties for axios call
-			const options = {
+			const OPTIONS = {
 				method: 'GET',
 				url: 'https://realty-in-us.p.rapidapi.com/properties/v2/list-for-rent',
 				params: {
@@ -53,8 +53,7 @@ const Index = () => {
 			};
 
 			// axios call to rapid-api to store list of properties in local storage 'properties'
-			await axios
-				.request(options)
+			await AXIOS.request(OPTIONS)
 				.then(function (response) {
 					localStorage.setItem(
 						'properties',
@@ -71,12 +70,12 @@ const Index = () => {
 	};
 
 	// useEffect function to push route to home page if city and state are null
-	// else call function getProp to get properties
+	// else call function GET_PROP to get properties
 	useEffect(() => {
 		if (CITY === 'null' && STATE === 'null') {
 			ROUTER.push('/');
 		} else {
-			getProp();
+			GET_PROP();
 			if (!propData && localStorage.getItem('properties') !== 'null')
 				ROUTER.push('/');
 		}
@@ -84,13 +83,13 @@ const Index = () => {
 	}, []);
 
 	// async function to make a new search for different location
-	const handleSubmit = async (e) => {
+	const HANDLESUBMIT = async (e) => {
 		e.preventDefault();
 		setLoading(true);
 		localStorage.setItem('city', cityValue);
 		localStorage.setItem('state', stateValue);
 		// const variable to set header properties for axios call
-		const options = {
+		const OPTIONS = {
 			method: 'GET',
 			url: 'https://realty-in-us.p.rapidapi.com/properties/v2/list-for-rent',
 			params: {
@@ -107,8 +106,7 @@ const Index = () => {
 		};
 
 		// axios call to rapid-api to store list of properties in local storage 'properties'
-		await axios
-			.request(options)
+		await AXIOS.request(OPTIONS)
 			.then(function (response) {
 				localStorage.setItem(
 					'properties',
@@ -133,34 +131,34 @@ const Index = () => {
 						</h1>
 						<form
 							className='flex flex-col gap-5'
-							onSubmit={handleSubmit}
+							onSubmit={HANDLESUBMIT}
 						>
 							<Autocomplete
 								className='border w-full h-12 text-xl px-4'
 								apiKey={`${GOOGLE_URL}`}
 								onPlaceSelected={(place) => {
 									if (place) {
-										const getCity =
+										const GET_CITY =
 											place.address_components.find(
 												(element) => {
-													const condition =
+													const CONDITION =
 														element.types.includes(
 															'neighborhood'
 														) ||
 														element.types.includes(
 															'locality'
 														);
-													return condition;
+													return CONDITION;
 												}
 											);
-										const getState =
+										const GET_STATE =
 											place.address_components.find(
 												(element) =>
 													element.types[0] ==
 													'administrative_area_level_1'
 											);
-										setCityValue(getCity.short_name);
-										setStateValue(getState.short_name);
+										setCityValue(GET_CITY.short_name);
+										setStateValue(GET_STATE.short_name);
 									}
 								}}
 								defaultValue={CITY}

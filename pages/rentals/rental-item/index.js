@@ -17,40 +17,40 @@ const Index = () => {
 
 	// reference variable for storing map
 	// returns an object with a single property
-	const mapElement = useRef();
+	const MAP_ELEMENT = useRef();
 	const [mapLongitude, setMapLongitude] = useState(0);
 	const [mapLatitude, setMapLatitude] = useState(0);
 
 	// function to get the properties from local storage
-	const getProperty = async () => {
+	const GET_PROPERTY = async () => {
 		// window is loaded get properties from local storage and turn string to json format
-		const getPropArray =
+		const GET_PROP_ARRAY =
 			(await typeof window) !== 'undefined'
 				? JSON.parse(localStorage.getItem('properties'))
 				: null;
 
 		// use the selected id from local storage to get one property information using find method
-		const getProp = getPropArray.find(
+		const GET_PROP = GET_PROP_ARRAY.find(
 			(items) => items.property_id == localStorage.getItem('prop-ID')
 		);
 
 		// get lat and lon of the property andress and assign it to const variables
-		setMapLatitude(Number(getProp.address.lat));
-		setMapLongitude(Number(getProp.address.lon));
+		setMapLatitude(Number(GET_PROP.address.lat));
+		setMapLongitude(Number(GET_PROP.address.lon));
 
-		// assign values from getProp variable to propValue state object
+		// assign values from GET_PROP variable to propValue state object
 		setPropValue({
-			property_id: getProp.property_id,
-			rdc_web_url: getProp.rdc_web_url,
-			address: getProp.address,
-			community: getProp.community,
-			photos: getProp.photos,
-			lead_forms: getProp.lead_forms,
+			property_id: GET_PROP.property_id,
+			rdc_web_url: GET_PROP.rdc_web_url,
+			address: GET_PROP.address,
+			community: GET_PROP.community,
+			photos: GET_PROP.photos,
+			lead_forms: GET_PROP.lead_forms,
 		});
 	};
 
 	// function for creating the map with markers for resturant locations
-	const getMap = async () => {
+	const GET_MAP = async () => {
 		// if lat not zero and window loaded, create map
 		if (mapLatitude !== 0 && typeof window !== 'undefined') {
 			// using dynamic import for tomtom map library
@@ -58,13 +58,13 @@ const Index = () => {
 			// creating map with lat and lon coordinates from the useState variables and zoom value
 			const map = tt.map({
 				key: `${TOMTOM_URL}`,
-				container: mapElement.current,
+				container: MAP_ELEMENT.current,
 				center: [mapLongitude, mapLatitude],
 				zoom: '15',
 			});
 
 			// async function for creating markers for resturant locations
-			const gett = async () => {
+			const GET_POPUP = async () => {
 				// using dynamic import for tomtom services library
 				const ttt = await import(
 					'@tomtom-international/web-sdk-services'
@@ -92,22 +92,22 @@ const Index = () => {
 				});
 			};
 
-			gett();
+			GET_POPUP();
 		}
 		return () => map.remove();
 	};
 
-	// useEffect function for calling the getPropery and getMap functions when the page loads
+	// useEffect function for calling the GET_PROPery and GET_MAP functions when the page loads
 	// call the function each time the lat and long variables get updated to update the map
 	useEffect(() => {
-		getProperty();
-		getMap();
+		GET_PROPERTY();
+		GET_MAP();
 	}, [mapLatitude, mapLongitude]);
 
 	// get url from propValue photos and update the link from small to large image size url
-	const url = Object.values(propValue.photos).map((e) => {
-		const href = e.href.split('.jpg');
-		return href.join('') + 'od.jpg';
+	const URL = Object.values(propValue.photos).map((e) => {
+		const HREF = e.href.split('.jpg');
+		return HREF.join('') + 'od.jpg';
 	});
 
 	// destructure propValue object
@@ -124,12 +124,12 @@ const Index = () => {
 
 						{/*Image holder*/}
 						<Image
-							loader={() => url[0]}
+							loader={() => URL[0]}
 							unoptimized={true}
 							width={200}
 							height={150}
 							alt='Property View'
-							src={url[0] ? url[10] : '/images/placeholder.jpeg'}
+							src={URL[0] ? URL[10] : '/images/placeholder.jpeg'}
 							className='bg-gray-50 w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
 						/>
 
@@ -209,42 +209,42 @@ const Index = () => {
 					<div className='grid lg:grid-cols-2 gap-2 mx-auto my-2.5 w-full lg:w-max '>
 						{/*Gallery Image Place Holders*/}
 						<Image
-							loader={() => url}
+							loader={() => URL}
 							unoptimized={true}
 							width={200}
 							height={150}
 							alt='Property View'
-							src={url[1] ? url[1] : '/images/placeholder.jpeg'}
+							src={URL[1] ? URL[1] : '/images/placeholder.jpeg'}
 							className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
 						/>
 
 						<Image
-							loader={() => url}
+							loader={() => URL}
 							unoptimized={true}
 							width={200}
 							height={150}
 							alt='Property View'
-							src={url[2] ? url[2] : '/images/placeholder.jpeg'}
+							src={URL[2] ? URL[2] : '/images/placeholder.jpeg'}
 							className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
 						/>
 
 						<Image
-							loader={() => url}
+							loader={() => URL}
 							unoptimized={true}
 							width={200}
 							height={150}
 							alt='Property View'
-							src={url[3] ? url[3] : '/images/placeholder.jpeg'}
+							src={URL[3] ? URL[3] : '/images/placeholder.jpeg'}
 							className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
 						/>
 
 						<Image
-							loader={() => url}
+							loader={() => URL}
 							unoptimized={true}
 							width={200}
 							height={150}
 							alt='Property View'
-							src={url[4] ? url[4] : '/images/placeholder.jpeg'}
+							src={URL[4] ? URL[4] : '/images/placeholder.jpeg'}
 							className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
 						/>
 					</div>
@@ -257,7 +257,7 @@ const Index = () => {
 						Near By Resturants
 					</h1>
 					<div className='mt-3 h-80 border-2 mx-auto'>
-						<div ref={mapElement} className='map' />
+						<div ref={MAP_ELEMENT} className='map' />
 					</div>
 				</div>
 				{/*end of map part*/}
