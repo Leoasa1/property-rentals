@@ -3,7 +3,7 @@ import Layout from './../../components/layout/Layout';
 import { useRouter } from 'next/router';
 import Card from '../../components/card/Card';
 import Autocomplete from 'react-google-autocomplete';
-const AXIOS = require('axios');
+import Axios from 'axios'
 import ScaleLoader from 'react-spinners/ScaleLoader';
 import { GOOGLE_URL, RAPIDAPI_URL } from '../../components/config/index.js';
 
@@ -32,41 +32,53 @@ const Index = () => {
 
 	// async function to make RAPID-API call to get list of property
 	const GET_PROP = async () => {
-		if (PROPERTIES !== 'null') {
-			setPropData(JSON.parse(PROPERTIES));
-		} else {
-			// const variable to set header properties for axios call
-			const OPTIONS = {
-				method: 'GET',
-				url: 'https://realty-in-us.p.rapidapi.com/properties/v2/list-for-rent',
-				params: {
-					city: `${CITY}`,
-					state_code: `${STATE}`,
-					limit: '40',
-					offset: '0',
-					sort: 'relevance',
-				},
-				headers: {
-					'X-RapidAPI-Key': `${RAPIDAPI_URL}`,
-					'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com',
-				},
-			};
+		const options = {
+			method: 'POST',
+			url: 'https://realty-in-us.p.rapidapi.com/properties/v3/list',
+			headers: {
+				'content-type': 'application/json',
+				'X-RapidAPI-Key': 'f18ead9437msh45f6b71c727a09cp1cf3d8jsn879b63b363cc',
+				'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com'
+			},
+			data: {
+				limit: 100,
+				offset: 0,
+				baths: {min: 3},
+				list_price: {max: 900, min: 200},
+				beds: {max: 3, min: 1},
+				cats: true,
+				dogs: true,
+				state_code: 'TX',
+				status: ['for_rent'],
+				type: [
+					'condos',
+					'condo_townhome_rowhome_coop',
+					'condo_townhome',
+					'townhomes',
+					'duplex_triplex',
+					'single_family',
+					'multi_family',
+					'apartment',
+					'condop',
+					'coop'
+				],
+				sort: {
+					direction: 'desc',
+					field: 'list_date'
+				}
+			}
+		};
 
-			// axios call to rapid-api to store list of properties in local storage 'properties'
-			await AXIOS.request(OPTIONS)
-				.then(function (response) {
-					localStorage.setItem(
-						'properties',
-						JSON.stringify(response.data.properties)
-					);
-					setPropData(response.data.properties);
-					setLoading(false);
-					console.log(response.data.properties);
-				})
-				.catch(function (error) {
-					console.error(error);
-				});
-		}
+		// axios call to rapid-api to store list of properties in local storage 'properties'
+		try {
+			const response = await Axios.request(options);
+			localStorage.setItem('properties', JSON.stringify(response.data.properties));
+			setPropData(response.data.propertie);
+			setLoading(false);
+			console.log(response.data);
+		  } catch (error) {
+			console.error(error);
+		  }
 	};
 
 	// useEffect function to push route to home page if city and state are null
@@ -89,34 +101,42 @@ const Index = () => {
 		localStorage.setItem('city', cityValue);
 		localStorage.setItem('state', stateValue);
 		// const variable to set header properties for axios call
-		const OPTIONS = {
-			method: 'GET',
-			url: 'https://realty-in-us.p.rapidapi.com/properties/v2/list-for-rent',
-			params: {
+		const options = {
+			method: 'POST',
+			url: 'https://realty-in-us.p.rapidapi.com/properties/v3/list',
+			data: {
+				limit: 100,
+				offset: 0,
 				city: `${cityValue}`,
 				state_code: `${stateValue}`,
-				limit: '40',
-				offset: '0',
-				sort: 'relevance',
+				status: [
+				  'for_rent',
+				],
+				sort: {
+				  direction: 'desc',
+				  field: 'list_date'
+				}
 			},
 			headers: {
+				'content-type': 'application/json',
 				'X-RapidAPI-Key': `${RAPIDAPI_URL}`,
 				'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com',
 			},
 		};
 
 		// axios call to rapid-api to store list of properties in local storage 'properties'
-		await AXIOS.request(OPTIONS)
-			.then(function (response) {
+		await Axios.request(options)
+			.then((response) => {
 				localStorage.setItem(
 					'properties',
 					JSON.stringify(response.data.properties)
 				);
-				setPropData(response.data.properties);
+				setPropData(response.data.propertie.home_search.results);
 				setLoading(false);
-				console.log(response.data.properties);
+				console.log("GET Response")
+				console.log(response.data);
 			})
-			.catch(function (error) {
+			.catch((error) => {
 				console.error(error);
 			});
 	};
