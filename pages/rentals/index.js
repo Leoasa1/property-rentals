@@ -204,14 +204,17 @@ const Index = () => {
 						</form>
 					</div>
 					{loading ? (
-						<ScaleLoader
-							className='mx-auto mt-40'
-							color='#000000'
-							loading={loading}
-							size={80}
-							aria-label='Loading Spinner'
-							data-testid='loader'
-						/>
+						<div className='text-center mt-80'>
+							<div className='text-lg font-bold mb-5'>Loading</div>
+							<ScaleLoader
+								className='mx-auto'
+								color='#000000'
+								loading={loading}
+								size={80}
+								aria-label='Loading Spinner'
+								data-testid='loader'
+							/>
+						</div>
 					) : (
 					
 						<div className='grid lg:grid-cols-2 justify-items-center gap-y-14 xl:px-56 py-10 mt-10'>
