@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import Layout from './../../components/layout/Layout';
+import Layout from '../../components/Layout';
 import { useRouter } from 'next/router';
-import Card from '../../components/card/Card';
+import Card from '../../components/Card';
 import Autocomplete from 'react-google-autocomplete';
 import Axios from 'axios'
 import ScaleLoader from 'react-spinners/ScaleLoader';
-import { GOOGLE_URL, RAPIDAPI_URL } from '../../components/config/index.js';
+import { GOOGLE_URL, RAPIDAPI_URL } from '../../components/Config';
 
 const Index = () => {
 	const [propData, setPropData] = useState([]);
@@ -32,54 +32,58 @@ const Index = () => {
 
 	// async function to make RAPID-API call to get list of property
 	const GET_PROP = async () => {
-		const options = {
-			method: 'POST',
-			url: 'https://realty-in-us.p.rapidapi.com/properties/v3/list',
-			headers: {
-				'content-type': 'application/json',
-				'X-RapidAPI-Key': 'f18ead9437msh45f6b71c727a09cp1cf3d8jsn879b63b363cc',
-				'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com'
-			},
-			data: {
-				limit: 100,
-				offset: 0,
-				baths: {min: 3},
-				list_price: {max: 900, min: 200},
-				beds: {max: 3, min: 1},
-				cats: true,
-				dogs: true,
-				state_code: 'TX',
-				status: ['for_rent'],
-				type: [
-					'condos',
-					'condo_townhome_rowhome_coop',
-					'condo_townhome',
-					'townhomes',
-					'duplex_triplex',
-					'single_family',
-					'multi_family',
-					'apartment',
-					'condop',
-					'coop'
-				],
-				sort: {
-					direction: 'desc',
-					field: 'list_date'
-				}
-			}
-		};
-
-		// axios call to rapid-api to store list of properties in local storage 'properties'
-		try {
-			const response = await Axios.request(options);
-			localStorage.setItem('properties', JSON.stringify(response.data.properties));
-			setPropData(response.data.propertie);
+		console.log(cityValue)
+		console.log(stateValue)
+		if (PROPERTIES !== 'null'){
+			setPropData(JSON.parse(PROPERTIES))
 			setLoading(false);
-			console.log(response.data);
-		  } catch (error) {
-			console.error(error);
-		  }
+		} else {
+			const options = {
+				method: 'POST',
+				url: 'https://realty-in-us.p.rapidapi.com/properties/v3/list',
+				headers: {
+					'content-type': 'application/json',
+					'X-RapidAPI-Key': `${RAPIDAPI_URL}`,
+					'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com'
+				},
+				data: {
+					limit: 100,
+					offset: 0,
+					city: `${CITY}`,
+					state_code: `${STATE}`,
+					status: ['for_rent'],
+					type: [
+						'condos',
+						'condo_townhome_rowhome_coop',
+						'condo_townhome',
+						'townhomes',
+						'duplex_triplex',
+						'single_family',
+						'multi_family',
+						'apartment',
+						'condop',
+						'coop'
+					],
+					sort: {
+						direction: 'desc',
+						field: 'list_date'
+					}
+				}
+			};
+
+			// axios call to rapid-api to store list of properties in local storage 'properties'
+			try {
+				const response = await Axios.request(options);
+				localStorage.setItem('properties', JSON.stringify(response.data.data.home_search.results));
+				setPropData(response.data.data.home_search.results);
+				setLoading(false);
+			} catch (error) {
+				console.error(error);
+			}
+		}
 	};
+
+	console.log(propData)
 
 	// useEffect function to push route to home page if city and state are null
 	// else call function GET_PROP to get properties
@@ -104,37 +108,42 @@ const Index = () => {
 		const options = {
 			method: 'POST',
 			url: 'https://realty-in-us.p.rapidapi.com/properties/v3/list',
+			headers: {
+				'content-type': 'application/json',
+				'X-RapidAPI-Key': `${RAPIDAPI_URL}`,
+				'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com'
+			},
 			data: {
 				limit: 100,
 				offset: 0,
 				city: `${cityValue}`,
 				state_code: `${stateValue}`,
-				status: [
-				  'for_rent',
+				status: ['for_rent'],
+				type: [
+					'condos',
+					'condo_townhome_rowhome_coop',
+					'condo_townhome',
+					'townhomes',
+					'duplex_triplex',
+					'single_family',
+					'multi_family',
+					'apartment',
+					'condop',
+					'coop'
 				],
 				sort: {
-				  direction: 'desc',
-				  field: 'list_date'
+					direction: 'desc',
+					field: 'list_date'
 				}
-			},
-			headers: {
-				'content-type': 'application/json',
-				'X-RapidAPI-Key': `${RAPIDAPI_URL}`,
-				'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com',
-			},
+			}
 		};
 
 		// axios call to rapid-api to store list of properties in local storage 'properties'
 		await Axios.request(options)
 			.then((response) => {
-				localStorage.setItem(
-					'properties',
-					JSON.stringify(response.data.properties)
-				);
-				setPropData(response.data.propertie.home_search.results);
+				localStorage.setItem('properties', JSON.stringify(response.data.data.home_search.results));
+				setPropData(response.data.data.home_search.results);
 				setLoading(false);
-				console.log("GET Response")
-				console.log(response.data);
 			})
 			.catch((error) => {
 				console.error(error);
@@ -204,6 +213,7 @@ const Index = () => {
 							data-testid='loader'
 						/>
 					) : (
+					
 						<div className='grid lg:grid-cols-2 justify-items-center gap-y-14 xl:px-56 py-10 mt-10'>
 							{propData.map((prop, i) => (
 								<Card key={i} property={prop} />

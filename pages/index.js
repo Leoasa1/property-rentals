@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Autocomplete from 'react-google-autocomplete';
 import { ToastContainer, toast } from 'react-toastify';
-import { GOOGLE_URL } from '../components/config/index.js';
+import { GOOGLE_URL } from '../components/Config';
 import Image from 'next/image.js';
 
 export default function Home() {

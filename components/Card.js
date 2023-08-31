@@ -21,8 +21,8 @@ const Card = ({ property }) => {
 	}, []);
 
 	// if property.photo[0] split url and join with "od.jpg"
-	if (property.photos[0]) {
-		url = property.photos[0].href.split('.jpg');
+	if (property.primary_photo) {
+		url = property.primary_photo.href.split('.jpg');
 		url = url.join('') + 'od.jpg';
 	} else {
 		url = '';
@@ -30,7 +30,7 @@ const Card = ({ property }) => {
 
 	return (
 		<div
-			className='card w-80 sm:w-96 bg-base-100 shadow-xl'
+			className='card w-80 sm:w-96 bg-base-100 shadow-xl cursor-pointer'
 			onClick={HANDLE_CLICK}
 		>
 			<figure>
@@ -46,36 +46,36 @@ const Card = ({ property }) => {
 			</figure>
 			<section className='card-body bg-card'>
 				<h2 className='card-title'>
-					{property.community !== undefined &&
-					property.community.price_max !== null
-						? `$ ${property.community.price_max}`
+					{property.list_price !== undefined &&
+					property.list_price !== null
+						? `$ ${property.list_price}`
 						: 'Contact for Price'}
 					<div className='badge badge-primary'>
-						{property.prop_type}
+						{property.description.type}
 					</div>
 				</h2>
 				<p className='pb-4'>
-					{property.address.line}, {property.address.city},{' '}
-					{property.address.state_code}
+					{property.location.address.line}, {property.location.address.city},{' '}
+					{property.location.address.state_code}
 				</p>
 				<div className='card-actions justify-end'>
 					<div className='badge badge-outline'>
 						Beds{' '}
-						{property.community !== undefined
-							? property.community.beds_max
-							: '?'}
+						{property.description.beds !== null
+							? property.description.beds
+							: property.description.beds_max}
 					</div>
 					<div className='badge badge-outline'>
 						Baths{' '}
-						{property.community !== undefined
-							? property.community.baths_max
-							: '?'}
+						{property.description !== null
+							? property.description.baths
+							:  property.description.baths_max}
 					</div>
 					<div className='badge badge-outline'>
 						Sqft{' '}
-						{property.community !== undefined
-							? property.community.sqft_max
-							: '?'}
+						{property.description !== null
+							? property.description.sqft
+							: property.description.sqft_max}
 					</div>
 				</div>
 			</section>

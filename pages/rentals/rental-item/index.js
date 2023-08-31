@@ -1,19 +1,30 @@
 import React from 'react';
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
-import Layout from '../../../components/layout/Layout';
-import { TOMTOM_URL } from '../../../components/config';
+import Layout from '../../../components/Layout';
+import { TOMTOM_URL } from '../../../components/Config';
+import Axios from 'axios';
+import ScaleLoader from 'react-spinners/ScaleLoader';
 
 const Index = () => {
+	const [loading, setLoading] = useState(true);
 	// global object inside the function for storing property object values such as address and photos etc..
 	const [propValue, setPropValue] = useState({
 		property_id: '',
 		address: {},
-		community: {},
+		description: {},
 		photos: {},
 		lead_forms: {},
-		rdc_web_url: '',
+		web_url: '',
+		agent: '',
+		price: ''
 	});
+
+	// window is loaded get properties from local storage and turn string to json format
+	const GET_PROP_ID =
+			(typeof window) !== 'undefined'
+				? JSON.parse(localStorage.getItem('prop-ID'))
+				: null;
 
 	// reference variable for storing map
 	// returns an object with a single property
@@ -23,30 +34,42 @@ const Index = () => {
 
 	// function to get the properties from local storage
 	const GET_PROPERTY = async () => {
-		// window is loaded get properties from local storage and turn string to json format
-		const GET_PROP_ARRAY =
-			(await typeof window) !== 'undefined'
-				? JSON.parse(localStorage.getItem('properties'))
-				: null;
 
-		// use the selected id from local storage to get one property information using find method
-		const GET_PROP = GET_PROP_ARRAY.find(
-			(items) => items.property_id == localStorage.getItem('prop-ID')
-		);
+		const options = {
+			method: 'GET',
+			url: 'https://realty-in-us.p.rapidapi.com/properties/v3/detail',
+			params: {
+			  property_id: `${GET_PROP_ID}`
+			},
+			headers: {
+			  'X-RapidAPI-Key': 'f18ead9437msh45f6b71c727a09cp1cf3d8jsn879b63b363cc',
+			  'X-RapidAPI-Host': 'realty-in-us.p.rapidapi.com'
+			}
+		};
+		  
+		try {
+			const response = await Axios.request(options);
+			const propDetails = response.data.data.home;
+					
+			// get lat and lon of the property andress and assign it to const variables
+			setMapLatitude(Number(propDetails.location.address.coordinate.lat));
+			setMapLongitude(Number(propDetails.location.address.coordinate.lon));
 
-		// get lat and lon of the property andress and assign it to const variables
-		setMapLatitude(Number(GET_PROP.address.lat));
-		setMapLongitude(Number(GET_PROP.address.lon));
-
-		// assign values from GET_PROP variable to propValue state object
-		setPropValue({
-			property_id: GET_PROP.property_id,
-			rdc_web_url: GET_PROP.rdc_web_url,
-			address: GET_PROP.address,
-			community: GET_PROP.community,
-			photos: GET_PROP.photos,
-			lead_forms: GET_PROP.lead_forms,
-		});
+			// assign values from propDetails variable to propValue state object
+			setPropValue({
+				property_id: propDetails.property_id,
+				web_url: propDetails.href,
+				address: propDetails.location.address,
+				description: propDetails.description,
+				lead_forms: propDetails.lead_forms,
+				agent: propDetails.advertisers[0],
+				photos: propDetails.photos,
+				price: propDetails.list_price
+			});
+			setLoading(false);
+		} catch (error) {
+			console.log(error.response);
+		}
 	};
 
 	// function for creating the map with markers for resturant locations
@@ -111,156 +134,166 @@ const Index = () => {
 	});
 
 	// destructure propValue object
-	const { rdc_web_url, address, community } = propValue;
+	const { web_url, address, description, agent, price } = propValue;
 
 	return (
 		//body
 		<Layout>
-			<div className='container mx-auto h-max p-4 border-black'>
-				{/*top container*/}
-				<div className='flex justify-center mt-2'>
-					<div className='grid lg:grid-cols-2 justify-items-center gap-2 w-full lg:w-auto p-4'>
-						{/*Image container*/}
-
-						{/*Image holder*/}
-						<Image
-							loader={() => URL[0]}
-							unoptimized={true}
-							width={200}
-							height={150}
-							alt='Property View'
-							src={URL[0] ? URL[10] : '/images/placeholder.jpeg'}
-							className='bg-gray-50 w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
+			<div className='container mx-auto flex flex-col justify-center'>
+				{loading ? (
+					<div className='text-center mt-80'>
+						<div className='text-lg font-bold mb-5'>Loading</div>
+						<ScaleLoader
+							className='mx-auto'
+							color='#000000'
+							loading={loading}
+							size={80}
+							aria-label='Loading Spinner'
+							data-testid='loader'
 						/>
+					</div>
+				) : (
+					<div className='container mx-auto h-max p-4 border-black'>
+						{/*top container*/}
+						<div className='flex justify-center mt-2'>
+							<div className='grid lg:grid-cols-2 justify-items-center gap-2 w-full lg:w-auto p-4'>
+								{/*Image container*/}
 
-						{/*Name, Price, Location and Specs*/}
-						<section className='flex flex-col justify-between w-full h-full'>
-							<div>
-								<h1 className='font-bold text-4xl playfair'>
-									{community
-										? `$ ${community.price_max}`
-										: 'Contact for Price'}
-								</h1>
-								<div className='text-xl'>
-									<p>
-										{address.line}, {address.city},{' '}
-										{address.state_code}
-									</p>
-								</div>
-								<div className='text-sm mt-4'>
-									<span>
-										{community ? community.beds_min : '?'} -{' '}
-										{community ? community.beds_max : '?'}{' '}
-										Beds
-									</span>
-									<br />
-									<span>
-										{community ? community.baths_min : '?'}{' '}
-										-{' '}
-										{community ? community.baths_max : '?'}{' '}
-										baths
-									</span>
-									<br />
-									<span>
-										{community ? community.sqft_min : '?'} -{' '}
-										{community ? community.sqft_max : '?'}{' '}
-										Sqft
-									</span>
-								</div>
+								{/*Image holder*/}
+								<Image
+									loader={() => URL[0]}
+									unoptimized={true}
+									width={200}
+									height={150}
+									alt='Property View'
+									src={URL[0] ? URL[0] : '/images/placeholder.jpeg'}
+									className='bg-gray-50 w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
+								/>
+
+								{/*Name, Price, Location and Specs*/}
+								<section className='flex flex-col justify-between w-full h-full'>
+									<div>
+										<h1 className='font-bold text-4xl playfair'>
+											{price
+												? `$ ${price}`
+												: 'Contact for Price'}
+										</h1>
+										<div className='text-xl'>
+											<p>
+												{address.line}, {address.city},{' '}
+												{address.state_code}
+											</p>
+										</div>
+										<div className='text-md mt-4'>
+											<span>
+												{description ? description.beds : '?'}{' '}
+												Beds
+											</span>
+											<br />
+											<span>
+												{description ? description.baths : '?'}{' '}
+												baths
+											</span>
+											<br />
+											<span>
+												{description ? description.sqft : '?'}{' '}
+												Sqft
+											</span>
+										</div>
+									</div>
+
+									{/*Buttons container*/}
+									<div className='flex flex-col mt-5 lg:mt-0 md:flex-row gap-4 w-full md:justify-start'>
+										{/*Buttons*/}
+										<a
+											href={web_url}
+											className='btn w-full md:w-56 lg:w-40 text-xs'
+											target='_blank'
+											rel='noreferrer'
+										>
+											{' '}
+											More Info{' '}
+										</a>
+										{agent.phones ? 
+											<a
+												href={
+													agent
+														? `tel:+${agent.phones[0].number}`
+														: 'rentals/rental-item'
+												}
+												className='btn w-full md:w-56 lg:w-40 text-xs'
+											>
+												{agent.phones[0].number}
+											</a>
+											: <></>
+										}
+									</div>
+								</section>
 							</div>
+						</div>{' '}
+						{/*Gallery container*/}
+						<div className='mt-10 p-4'>
+							{/*Gallery Header*/}
+							<h1 className='p-1 font-bold text-xl text-center playfair border-b border-black w-56 mx-auto'>
+								Gallery
+							</h1>
 
-							{/*Buttons container*/}
-							<div className='flex flex-col mt-5 lg:mt-0 md:flex-row gap-4 w-full md:justify-start'>
-								{/*Buttons*/}
-								<a
-									href={rdc_web_url}
-									className='btn w-full md:w-56 lg:w-40 text-xs'
-									target='_blank'
-									rel='noreferrer'
-								>
-									{' '}
-									More Info{' '}
-								</a>
-								<a
-									href={
-										community
-											? `tel:+${community.contact_number}`
-											: 'rentals/rental-item'
-									}
-									className='btn w-full md:w-56 lg:w-40 text-xs'
-								>
-									{community.contact_number
-										? community.contact_number
-										: 'Phone Not Available'}
-								</a>
+							{/*Gallery Part. set up block's w and h*/}
+							<div className='grid lg:grid-cols-2 gap-2 mx-auto my-2.5 w-full lg:w-max '>
+								{/*Gallery Image Place Holders*/}
+								<Image
+									loader={() => URL}
+									unoptimized={true}
+									width={200}
+									height={150}
+									alt='Property View'
+									src={URL[1] ? URL[1] : '/images/placeholder.jpeg'}
+									className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
+								/>
+
+								<Image
+									loader={() => URL}
+									unoptimized={true}
+									width={200}
+									height={150}
+									alt='Property View'
+									src={URL[2] ? URL[2] : '/images/placeholder.jpeg'}
+									className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
+								/>
+
+								<Image
+									loader={() => URL}
+									unoptimized={true}
+									width={200}
+									height={150}
+									alt='Property View'
+									src={URL[3] ? URL[3] : '/images/placeholder.jpeg'}
+									className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
+								/>
+
+								<Image
+									loader={() => URL}
+									unoptimized={true}
+									width={200}
+									height={150}
+									alt='Property View'
+									src={URL[4] ? URL[4] : '/images/placeholder.jpeg'}
+									className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
+								/>
 							</div>
-						</section>
+						</div>
+						{/*Map container*/}
+						<div className='mt-10 p-4'>
+							{/*Map Header*/}
+							<h1 className='p-1 font-bold text-xl text-center playfair border-b border-black w-56 mx-auto'>
+								Near By Resturants
+							</h1>
+							<div className='mt-3 h-80 border-2 mx-auto'>
+								<div ref={MAP_ELEMENT} className='map' />
+							</div>
+						</div>
 					</div>
-				</div>{' '}
-				{/*end of top part*/}
-				{/*Gallery container*/}
-				<div className='mt-10 p-4'>
-					{/*Gallery Header*/}
-					<h1 className='p-1 font-bold text-xl text-center playfair border-b border-black w-56 mx-auto'>
-						Gallery
-					</h1>
-
-					{/*Gallery Part. set up block's w and h*/}
-					<div className='grid lg:grid-cols-2 gap-2 mx-auto my-2.5 w-full lg:w-max '>
-						{/*Gallery Image Place Holders*/}
-						<Image
-							loader={() => URL}
-							unoptimized={true}
-							width={200}
-							height={150}
-							alt='Property View'
-							src={URL[1] ? URL[1] : '/images/placeholder.jpeg'}
-							className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
-						/>
-
-						<Image
-							loader={() => URL}
-							unoptimized={true}
-							width={200}
-							height={150}
-							alt='Property View'
-							src={URL[2] ? URL[2] : '/images/placeholder.jpeg'}
-							className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
-						/>
-
-						<Image
-							loader={() => URL}
-							unoptimized={true}
-							width={200}
-							height={150}
-							alt='Property View'
-							src={URL[3] ? URL[3] : '/images/placeholder.jpeg'}
-							className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
-						/>
-
-						<Image
-							loader={() => URL}
-							unoptimized={true}
-							width={200}
-							height={150}
-							alt='Property View'
-							src={URL[4] ? URL[4] : '/images/placeholder.jpeg'}
-							className='w-full lg:w-96 h-auto lg:h-64 flex items-center justify-center'
-						/>
-					</div>
-				</div>
-				{/*end of gallery part*/}
-				{/*Map container*/}
-				<div className='mt-10 p-4'>
-					{/*Map Header*/}
-					<h1 className='p-1 font-bold text-xl text-center playfair border-b border-black w-56 mx-auto'>
-						Near By Resturants
-					</h1>
-					<div className='mt-3 h-80 border-2 mx-auto'>
-						<div ref={MAP_ELEMENT} className='map' />
-					</div>
-				</div>
-				{/*end of map part*/}
+				)}
 			</div>
 		</Layout>
 	);
